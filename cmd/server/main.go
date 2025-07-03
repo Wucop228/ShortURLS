@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/Wucop228/ShortURLS/internal/cache"
 	"log"
 
 	"github.com/labstack/echo/v4"
@@ -31,8 +32,9 @@ func main() {
 		log.Fatal("DB ping error:", err)
 	}
 
+	rdb := cache.RedisNew(cfg.RedisAddr, cfg.RedisPassword, cfg.RedisDB, cfg.TTL)
 	e := echo.New()
-	h := handler.NewHandlers(db)
+	h := handler.NewHandlers(db, rdb)
 
 	e.GET("/urls/:key", h.Redirect)
 	e.POST("/create-url", h.Shorten)

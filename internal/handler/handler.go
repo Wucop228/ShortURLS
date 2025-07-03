@@ -2,6 +2,8 @@ package handler
 
 import (
 	"database/sql"
+	"github.com/Wucop228/ShortURLS/internal/cache"
+	"github.com/Wucop228/ShortURLS/internal/service"
 	"net/http"
 
 	"github.com/Wucop228/ShortURLS/internal/model"
@@ -10,11 +12,12 @@ import (
 )
 
 type Handlers struct {
-	db *sql.DB
+	db  *sql.DB
+	rdb *cache.RedisCache
 }
 
-func NewHandlers(db *sql.DB) *Handlers {
-	return &Handlers{db: db}
+func NewHandlers(db *sql.DB, rdb *cache.RedisCache) *Handlers {
+	return &Handlers{db: db, rdb: rdb}
 }
 
 type ShortenRequest struct {
@@ -36,7 +39,7 @@ func (h *Handlers) Redirect(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Missing key"})
 	}
 
-	baseURL, err := model.GetURL(h.db, key)
+	baseURL, err := service.GetOriginalURL(h.db, h.rdb, key)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, ErrorResponse{Error: "URL not found"})
 	}
@@ -58,7 +61,7 @@ func (h *Handlers) Shorten(c echo.Context) error {
 	shortURL := shortener.Generate(id + 1)
 	url := model.URL{BaseUrl: req.URL, ShortUrl: shortURL}
 
-	if err := model.AddURL(h.db, url); err != nil {
+	if err := service.SetOriginalURL(h.db, h.rdb, url); err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "DB error"})
 	}
 
