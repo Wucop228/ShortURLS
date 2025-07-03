@@ -7,7 +7,7 @@
 - Сокращение длинных ссылок в уникальные ключи
 - Редирект по короткому URL
 - REST API
-- Хранение в PostgreSQL
+- Хранение в PostgreSQL и в Redis
 
 ## Стек
 
@@ -15,6 +15,7 @@
 - Echo
 - PostgreSQL
 - godotenv
+- Redis
 
 ## Установка
 
@@ -29,6 +30,7 @@ cd ShortURLS
 ```bash
 touch .env
 ```
+Postgresql
 ```
 DB_USER=your_user
 DB_PASSWORD=your_password
@@ -36,6 +38,12 @@ DB_NAME=your_db
 DB_PORT=5432
 DB_HOST=localhost
 PORT=8080
+```
+Redis
+```
+REDIS_ADDR=localhost
+REDIS_PASSWORD=your_password
+REDIS_DB=0
 ```
 
 3. Запустите сервер
